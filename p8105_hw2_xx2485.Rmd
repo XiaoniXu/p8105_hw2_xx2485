@@ -8,6 +8,7 @@ output: github_document
 Loading needed packages:
 ```{r, message = FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 ## Problem 1
@@ -96,9 +97,53 @@ print(ada_compliant_a_train_stations)
 There are 17 stations that serve the A train and are ADA compliant.
 
 
-Answer the following questions using these data:
+## Problem 2
 
-What proportion of station entrances / exits without vending allow entrance?
-Reformat data so that route number and route name are distinct variables. How many ? Of the stations that serve the A train, how many are ADA compliant?
+Read and clean the data
+```{r}
+# Read and clean the Mr. Trash Wheel data
+mr_trash_wheel_df = 
+  read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
+             sheet = "Mr. Trash Wheel",
+             col_names = TRUE) %>% # specify the sheet in the Excel file and to omit non-data entries
+  janitor::clean_names() %>% # use reasonable variable names
+  select(dumpster:homes_powered)%>% 
+  filter(!is.na(dumpster)) %>% # Omit rows without dumpster-specific data
+  mutate(sports_balls = as.integer(round(sports_balls))) %>%  # Round sports balls and convert to integer
+  mutate(trash_wheel = "Mr. Trash Wheel",
+         year = as.integer(year))  # Add identifier
 
-Problem 2
+# Read and clean the Professor Trash Wheel data
+professor_trash_wheel_df =
+  read_excel("data/202309 Trash Wheel Collection Data.xlsx",
+                                        sheet = "Professor Trash Wheel",
+                                        col_names = TRUE) %>%
+  janitor::clean_names() %>%
+  select(dumpster:homes_powered) %>%
+  filter(!is.na(dumpster)) %>%
+  mutate(trash_wheel = "Professor Trash Wheel",
+         year = as.integer(year))  # Add identifier
+
+# Read and clean the Gwynnda Wheel data
+gwynnda_df <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
+                          sheet = "Gwynnda Trash Wheel",
+                          col_names = TRUE) %>%
+  janitor::clean_names() %>%
+  select(dumpster:homes_powered) %>%
+  filter(!is.na(dumpster)) %>%
+  mutate(trash_wheel = "Gwynnda",
+         year = as.integer(year))  # Add identifier
+
+# Combine all datasets into a single tidy dataset
+combined_trash_wheel_df <- bind_rows(mr_trash_wheel_df, 
+                                      professor_trash_wheel_df, 
+                                      gwynnda_df)
+
+# Display the combined dataset
+print(combined_trash_wheel_df)
+```
+The `combined_trash_wheel_df` dataframe combines the data from three different trash wheels of Healthy Harbor company from the year 2014 to 2023, if data is available. The data includes the number of dumpster, data, weight, volumes, types of trash collected, and homes powered. The dataset has 845
+
+
+
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in June of 2022?
