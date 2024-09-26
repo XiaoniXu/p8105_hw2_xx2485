@@ -14,7 +14,7 @@ library(ggplot2)
 
 ## Problem 1
 
-Loading and cleaning the NYC transit data; convert the entry variable from character to a logical variable.
+**Loading and cleaning the NYC transit data; convert the entry variable from character to a logical variable**
 ```{r} 
 transit_df <- 
   read_csv("data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
@@ -25,7 +25,7 @@ transit_df <-
 ```
 This dataset contains the information for every entrance of every subway station of NYC. I chose a number of categories of data from the original dataset, including line, station name, station latitude/longitude, route, entry, vending, entrance type, and ADA compliance. The dimension of the dataset after cleaning is 1868 rows x 19 columns. The data is not quite tidy because `vending` variable is still a YES/NO character variable, the route variable is difficult to understand, and each entrance of the same station is not given a proper way to identify them.
 
-Count distinct stations by both station name and line:
+**Count distinct stations by both station name and line**
 ```{r}
 distinct_stations <- transit_df %>%
   distinct(station_name, line) %>%
@@ -36,7 +36,7 @@ print(distinct_stations)
 ```
 There are 465 distinct stations.
 
-Count ADA-compliant stations
+**Count ADA-compliant stations**
 ```{r}
 ada_compliant_count <- transit_df %>%
   filter(ada == TRUE) %>%
@@ -48,7 +48,7 @@ print(ada_compliant_count)
 ```
 There are 84 distinct stations that are ADA compliant.
 
-Calculate the proportion of station entrances / exits without vending allow entrance
+**Calculate the proportion of station entrances / exits without vending allow entrance**
 ```{r}
 # Filter for stations without vending and count those allowing entrance
 proportion_no_vending_entry <- transit_df %>%
@@ -61,7 +61,7 @@ print(proportion_no_vending_entry)
 The proportion of station entrances / exits without vending allow entrance is 0.3770492.
 
 
-Reformat the data so that route number and route name are distinct
+**Reformat the data so that route number and route name are distinct**
 ```{r}
 transit_df_reformat <- transit_df %>%
   mutate(across(starts_with("route"), as.character)) %>%   # Convert all route columns to character
@@ -71,7 +71,7 @@ transit_df_reformat <- transit_df %>%
                values_drop_na = TRUE)        # Drop NA values
 ```
 
-Find the number of distinct stations that serve the A train
+**Find the number of distinct stations that serve the A train**
 ```{r}
 # Filter for stations that serve the A train and count distinct stations
 distinct_a_train_stations <- transit_df_reformat %>%
@@ -84,7 +84,7 @@ print(distinct_a_train_stations)
 ```
 There are 60 distinct stations that serve the A train.
 
-Find the number of stations that serve the A train and are ADA compliant
+**Find the number of stations that serve the A train and are ADA compliant**
 ```{r}
 # Filter for distinct ADA-compliant stations that serve the A train
 ada_compliant_a_train_stations <- transit_df_reformat %>%
@@ -100,7 +100,7 @@ There are 17 stations that serve the A train and are ADA compliant.
 
 ## Problem 2
 
-Read and clean the data
+**Read and clean the data**
 ```{r}
 # Read and clean the Mr. Trash Wheel data
 mr_trash_wheel_df = 
@@ -145,7 +145,7 @@ print(combined_trash_wheel_df)
 ```
 The `combined_trash_wheel_df` dataframe combines the data from three different trash wheels of Healthy Harbor company from the year 2014 to 2023, if data is available. The data includes the number of dumpster, date, weight, volumes, types of trash collected, and homes powered. The combined dataset has 845 rows, with 584 in the Mr. Trash Wheel dataset, 106 in the Professor Trash Wheel dataset, and 155 in the Gwynnda Trash Wheel dataset. 
 
-Calculate the total weight of trash collected by Professor Trash Wheel
+**Calculate the total weight of trash collected by Professor Trash Wheel**
 ```{r}
 # Filter for Professor Trash Wheel and pull the weight column
 total_weight_professor <- sum(
@@ -159,7 +159,7 @@ print(total_weight_professor)
 ```
 The total weight of trash collected by Professor Trash Wheel is 216.26 tons.
 
-Calculate the total number of cigarette butts collected by Gwynnda in June of 2022
+**Calculate the total number of cigarette butts collected by Gwynnda in June of 2022**
 ```{r}
 # Filter for Gwynnda in June 2022 and calculate the total cigarette butts
 total_cigarette_butts_gwynnda <- combined_trash_wheel_df %>%
@@ -174,7 +174,8 @@ The total number of cigarette butts collected by Gwynnda in June of 2022 is 1812
 
 
 ## Problem 3
-Import all datasets of the Great British Bake Off
+
+**Import all datasets of the Great British Bake Off**
 ```{r}
 # Import data starting from the 4th row
 results <- read_csv("data/gbb_datasets/results.csv", 
@@ -189,7 +190,7 @@ bakers <- read_csv("data/gbb_datasets/bakers.csv") %>%
 viewers <- read_csv("data/gbb_datasets/viewers.csv") %>% 
   janitor::clean_names()
 ```
-Preparing the data for merging
+**Preparing the data for merging**
 ```{r}
 # Create a new column in `bakers` to extract the first name
 bakers <- bakers %>%
@@ -204,8 +205,7 @@ viewers_long <- viewers %>%
   mutate(series = as.integer(series))
 ```
 
-
-Merging the dataframes
+**Merging the dataframes**
 ```{r}
 # Merge the two dataframes `results` and `bakes based on the three columns
 merged_data <- merge(results, bakes, by = c("series", "episode", "baker"), all = TRUE) %>% # merge datasheets 'results' and 'bakes'
@@ -215,8 +215,7 @@ merged_data <- merge(results, bakes, by = c("series", "episode", "baker"), all =
          
 ```
 
-
-Check for correctness across datasets using `anti_join`
+**Check for correctness across datasets using `anti_join`**
 ```{r}
 # Find rows in `merged_data` that do not have a match in `viewers_long`
 unmatched_in_merged <- merged_data %>%
@@ -226,7 +225,7 @@ unmatched_in_merged
 ```
 If the output is 0 rows, it means that we have no mismatches.
 
-Organize the variables
+**Organize the variables**
 ```{r}
 # Rename `baker_name` to `baker_full_name` and rearrange columns
 merged_data <- merged_data %>%
@@ -236,7 +235,7 @@ merged_data <- merged_data %>%
 ```
 I rearranged the columns of the dataframe so it follows the flow of 1) episode, 2) baker's personal information, 3) baker's bake and result, and 4) the viewership.
 
-Export the modified dataframe as a CSV file
+**Export the modified dataframe as a CSV file**
 ```{r}
 write.csv(merged_data, file = file.path("C:/Users/berns/Desktop/P8105 Data Science I/p8105_hw2_xx2485/p8105_hw2_xx2485/data/gbb_datasets", "merged_data.csv"), row.names = FALSE)
 ```
@@ -255,7 +254,7 @@ For the data cleaning process, I followed the steps shown below:
 The final dataset is a tidy format containing key information about bakers, their performance in various series and episodes, their demographic details, their bakes (signature, technical, show-stopper), and viewership. By combining results, bakes, and viewers, the dataset allows for comprehensive analysis, of the bakers' background, performance, and viewership engagement. The NA values and data not included in the final dataset might influence the analysis of the data.
 
 
-Create a reader-friendly table showing the star baker or winner of each episode in Seasons 5 through 10
+**Create a reader-friendly table showing the star baker or winner of each episode in Seasons 5 through 10**
 ```{r}
 # Filter the dataset for seasons 5 through 10 and episodes with a "Star Baker" or winner
 star_bakers_winners <- merged_data %>%
@@ -291,7 +290,7 @@ ggplot(star_bakers_winners, aes(x = factor(episode), y = factor(series))) +
 
 
 
-Import, clean, tidy, and organize the viewership data 
+**Import, clean, tidy, and organize the viewership data**
 ```{r}
 # Show the first 10 rows of the cleaned and organized dataset
 viewers_long %>%
