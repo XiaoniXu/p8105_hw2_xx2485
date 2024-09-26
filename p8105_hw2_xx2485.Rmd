@@ -224,7 +224,7 @@ unmatched_in_merged <- merged_data %>%
 
 unmatched_in_merged
 ```
-If the output is 0 rows, it means that we have no mismathes.
+If the output is 0 rows, it means that we have no mismatches.
 
 Organize the variables
 ```{r}
@@ -276,6 +276,7 @@ ggplot(star_bakers_winners, aes(x = factor(episode), y = factor(series))) +
     axis.text.y = element_text(face = "bold")  # Make y-axis labels bold
   )
 ```
+
 *  Season 5: Richard stands out with five wins (Episodes 2, 4, 7, 8, and 9), who is the predicted winner. However, despite Richard's multiple wins, the overall winner of Season 5 was Nancy, who only won Episodes 1 and 10.
 
 *  Season 6: Nadiya won four episodes (Episodes 5, 8, 9, and 10), who is the predicted winner, and became the overall winner.
@@ -290,6 +291,29 @@ ggplot(star_bakers_winners, aes(x = factor(episode), y = factor(series))) +
 
 
 
-Import, clean, tidy, and organize the viewership data in viewership.csv. Show the first 10 rows of this dataset. What was the average viewership in Season 1? In Season 5?
+Import, clean, tidy, and organize the viewership data 
+```{r}
+# Show the first 10 rows of the cleaned and organized dataset
+viewers_long %>%
+  arrange(series, episode) %>%  # Sort by series and episode
+  head(10) %>%
+  print()
 
+# Calculate the average viewership for Season 1
+avg_viewership_season_1 <- viewers_long %>%
+  filter(series == 1) %>%
+  summarise(average_viewers = mean(viewers, na.rm = TRUE))
 
+# Calculate the average viewership for Season 5
+avg_viewership_season_5 <- viewers_long %>%
+  filter(series == 5) %>%
+  summarise(average_viewers = mean(viewers, na.rm = TRUE))
+
+# Display the results
+
+# the average viewership in Season 1
+avg_viewership_season_1
+
+# the average viewership in Season 5
+avg_viewership_season_5
+```
