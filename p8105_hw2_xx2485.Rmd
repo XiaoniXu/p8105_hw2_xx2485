@@ -246,11 +246,11 @@ For the data cleaning process, I followed the steps shown below:
 
 *  Skipped unnecessary rows: For some datasets, I skipped the first few rows to remove notes that were not relevant to the analysis.
 
-*  Standardizing Column Names: Used functions like janitor::clean_names() to standardize column names, ensuring consistency across different datasets. Later, I changed column names using base R functions (e.g., renaming baker_name to baker_full_name)t.
+*  Standardizing column names: Used functions like janitor::clean_names() to standardize column names, ensuring consistency across different datasets. Later, I changed column names using base R functions (e.g., renaming baker_name to baker_full_name)t.
 
 *  Merging datasheets: I merged datasheets `results` and `bakes` based on the columns series, episode, and baker. `bakers` is merged based on the first names and series. The `viewers` dataset was in a wide format with columns like series_1, series_2, etc. To match the series and episode information, this dataset was reshaped into a long format using pivot_longer() to create a series and viewers column so it can also be merged into one single `merged_data` datasheet.
 
-*  Fixing Incompatible Data Types: I encountered data type mismatches of `series` being a character in one dataset and a numeric type in another. To resolve this, I converted the `series` column to a common data type (integer) in both datasets before merging.
+*  Fixing incompatible data types: I encountered data type mismatches of `series` being a character in one dataset and a numeric type in another. To resolve this, I converted the `series` column to a common data type (integer) in both datasets before merging.
 
 The final dataset is a tidy format containing key information about bakers, their performance in various series and episodes, their demographic details, their bakes (signature, technical, show-stopper), and viewership. By combining results, bakes, and viewers, the dataset allows for comprehensive analysis, of the bakers' background, performance, and viewership engagement. The NA values and data not included in the final dataset might influence the analysis of the data.
 
