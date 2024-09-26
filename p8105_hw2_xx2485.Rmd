@@ -14,7 +14,7 @@ library(ggplot2)
 
 ## Problem 1
 
-**Loading and cleaning the NYC transit data; convert the entry variable from character to a logical variable**
+**Loading and cleaning the NYC transit data; convert the entry variable from character to a logical variable** 
 ```{r} 
 transit_df <- 
   read_csv("data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
@@ -241,6 +241,7 @@ write.csv(merged_data, file = file.path("C:/Users/berns/Desktop/P8105 Data Scien
 ```
 
 For the data cleaning process, I followed the steps shown below:
+
 *  Importing CSV files: The initial datasets (results, bakes, and viewers) were imported using functions such as read_csv().
 
 *  Skipped unnecessary rows: For some datasets, I skipped the first few rows to remove notes that were not relevant to the analysis.
