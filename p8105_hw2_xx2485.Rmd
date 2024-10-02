@@ -23,7 +23,7 @@ transit_df <-
   mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
   
 ```
-This dataset contains the information for every entrance of every subway station of NYC. I chose a number of categories of data from the original dataset, including line, station name, station latitude/longitude, route, entry, vending, entrance type, and ADA compliance. The dimension of the dataset after cleaning is 1868 rows x 19 columns. Column names are renamed in a way to make them easier for coding.
+This dataset contains the information for every entrance of every subway station of NYC. I chose a number of categories of data from the original dataset, including line, station name, station latitude/longitude, route, entry, vending, entrance type, and ADA compliance. The dimension of the dataset after cleaning is `r nrow(transit_df)` * `r ncol(transit_df)` (row * columns). Column names are renamed in a way to make them easier for coding.
 
 The data is not quite tidy because `vending` variable is still a YES/NO character variable, the route variable is difficult to understand, and each entrance of the same station is not given a proper way to identify them.
 
@@ -36,7 +36,7 @@ distinct_stations <- transit_df %>%
 # View the count of distinct stations
 print(distinct_stations)
 ```
-There are 465 distinct stations.
+There are `r distinct_stations` distinct stations.
 
 **Count ADA-compliant stations**
 ```{r}
@@ -48,7 +48,7 @@ ada_compliant_count <- transit_df %>%
 # View the count
 print(ada_compliant_count)
 ```
-There are 84 distinct stations that are ADA compliant.
+There are `r ada_compliant_count` distinct stations that are ADA compliant.
 
 **Calculate the proportion of station entrances / exits without vending allow entrance**
 ```{r}
@@ -60,7 +60,7 @@ proportion_no_vending_entry <- transit_df %>%
 # View the result
 print(proportion_no_vending_entry)
 ```
-The proportion of station entrances / exits without vending allow entrance is 0.3770492.
+The proportion of station entrances / exits without vending allow entrance is `r round((proportion_no_vending_entry * 100), 2)`%.
 
 
 **Reformat the data so that route number and route name are distinct**
@@ -84,7 +84,7 @@ distinct_a_train_stations <- transit_df_reformat %>%
 # View the count of distinct A train stations
 print(distinct_a_train_stations)
 ```
-There are 60 distinct stations that serve the A train.
+There are `r distinct_a_train_stations` distinct stations that serve the A train.
 
 **Find the number of stations that serve the A train and are ADA compliant**
 ```{r}
@@ -97,7 +97,7 @@ ada_compliant_a_train_stations <- transit_df_reformat %>%
 # View the count of distinct ADA-compliant A train stations
 print(ada_compliant_a_train_stations)
 ```
-There are 17 stations that serve the A train and are ADA compliant.
+There are `r ada_compliant_a_train_stations` stations that serve the A train and are ADA compliant.
 
 
 ## Problem 2
@@ -106,7 +106,7 @@ There are 17 stations that serve the A train and are ADA compliant.
 ```{r}
 # Read and clean the Mr. Trash Wheel data
 mr_trash_wheel_df = 
-  read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
+  read_excel("data/202409 Trash Wheel Collection Data.xlsx", 
              sheet = "Mr. Trash Wheel",
              col_names = TRUE) %>% # specify the sheet in the Excel file and to omit non-data entries
   janitor::clean_names() %>% # use reasonable variable names
@@ -114,28 +114,31 @@ mr_trash_wheel_df =
   filter(!is.na(dumpster)) %>% # Omit rows without dumpster-specific data
   mutate(sports_balls = as.integer(round(sports_balls))) %>%  # Round sports balls and convert to integer
   mutate(trash_wheel = "Mr. Trash Wheel",
-         year = as.integer(year))  # Add identifier
+         year = as.integer(year),# Add identifier
+         homes_powered = (weight_tons * 500 / 30))  
 
 # Read and clean the Professor Trash Wheel data
 professor_trash_wheel_df =
-  read_excel("data/202309 Trash Wheel Collection Data.xlsx",
+  read_excel("data/202409 Trash Wheel Collection Data.xlsx",
                                         sheet = "Professor Trash Wheel",
                                         col_names = TRUE) %>%
   janitor::clean_names() %>%
   select(dumpster:homes_powered) %>%
   filter(!is.na(dumpster)) %>%
   mutate(trash_wheel = "Professor Trash Wheel",
-         year = as.integer(year))  # Add identifier
+         year = as.integer(year),
+         homes_powered = (weight_tons * 500 / 30))
 
 # Read and clean the Gwynnda Wheel data
-gwynnda_df <- read_excel("data/202309 Trash Wheel Collection Data.xlsx",
+gwynnda_df <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
                           sheet = "Gwynnda Trash Wheel",
                           col_names = TRUE) %>%
   janitor::clean_names() %>%
   select(dumpster:homes_powered) %>%
   filter(!is.na(dumpster)) %>%
   mutate(trash_wheel = "Gwynnda",
-         year = as.integer(year))  # Add identifier
+         year = as.integer(year),
+         homes_powered = (weight_tons * 500 / 30))
 
 # Combine all datasets into a single tidy dataset
 combined_trash_wheel_df <- bind_rows(mr_trash_wheel_df, 
@@ -144,50 +147,81 @@ combined_trash_wheel_df <- bind_rows(mr_trash_wheel_df,
 
 # Display the combined dataset
 print(combined_trash_wheel_df)
+summary(combined_trash_wheel_df)
 ```
-The `combined_trash_wheel_df` dataframe combines the data from three different trash wheels of Healthy Harbor company from the year 2014 to 2023, if data is available. The data includes the number of dumpster, date, weight, volumes, types of trash collected, and homes powered. 
-
 
 **Mr. Trash Wheel**:
 
-*  The dataset contains 584 observations and 15 categories for data. The data was collacted from 2014 to 2023.
-*  The weight of trash collected ranges from 0.78 tons to 5.62 tons, with an average of 3.21 tons per dumpster. Cumulatively, Mr. Trash Wheel has collected approximately 1875.7 tons of trash.
-*  The volume ranges from 7 to 20 cubic yards, averaging 15.3 cubic yards per dumpster, totaling approximately 8935.2 cubic yards of trash.
+```{r}
+summary(mr_trash_wheel_df)
+```
+*  The dataset contains `r nrow(mr_trash_wheel_df)` observations and `r ncol(mr_trash_wheel_df)` categories for data. The data was collected from years `r paste(unique(mr_trash_wheel_df$year), collapse = ", ")`, with the number of observations in each year being: `r paste(table(mr_trash_wheel_df$year), collapse = ", ")`.
 
-*  Plastic Bottles: An average of 1979 bottles per dumpster, with a cumulative total of 1156696 plastic bottles.
-*  Polystyrene: An average of 1558 units per dumpster, totaling 910672 units collected.
-*  Cigarette Butts: Each dumpster collects an average of 19833 butts, summing up to 11587312 cigarette butts.
-*  Glass Bottles: An average of 21.62 bottles per dumpster, resulting in a total of 12623 glass bottles.
-*  Plastic Bags: An average of 916.8 bags per dumpster, amounting to 535347 plastic bags.
-*  Wrappers: An average of 1416 wrappers per dumpster, with a cumulative total of 827744 wrappers.
-*  Each dumpster powers an average of 47.28 homes, with a cumulative total of 27606.72 homes powered by the collected trash.
+* The weight of trash collected by Mr. Trash Wheel dumpsters ranges from `r round(min(mr_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons to `r round(max(mr_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons, with an average of `r round(mean(mr_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons per dumpster. Cumulatively, Mr. Trash Wheel has collected `r round(sum(mr_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons of trash.
+
+*  The volume of trash ranges from `r round(min(mr_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` to `r round(max(mr_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards, averaging `r round(mean(mr_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards per dumpster, totaling approximately `r round(sum(mr_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards of trash.
+
+*  Plastic Bottles: An average of `r round(mean(mr_trash_wheel_df$plastic_bottles, na.rm = TRUE), 0)`, bottles per dumpster, with a cumulative total of approximately `r format(sum(mr_trash_wheel_df$plastic_bottles, na.rm = TRUE), scientific = FALSE)` plastic bottles.
+*  Polystyrene: An average of `r round(mean(mr_trash_wheel_df$polystyrene, na.rm = TRUE), 0)` units per dumpster, totaling approximately `r format(sum(mr_trash_wheel_df$polystyrene, na.rm = TRUE), scientific = FALSE)` units collected.
+*  Cigarette Butts: Each dumpster collects an average of `r round(mean(mr_trash_wheel_df$cigarette_butts, na.rm = TRUE), 0)` butts, summing up to approximately `r format(sum(mr_trash_wheel_df$cigarette_butts, na.rm = TRUE), scientific = FALSE)` cigarette butts.
+*  Glass Bottles: An average of  `r round(mean(mr_trash_wheel_df$glass_bottles, na.rm = TRUE), 0)` bottles per dumpster, resulting in a total of approximately `r format(sum(mr_trash_wheel_df$glass_bottles, na.rm = TRUE), scientific = FALSE)` glass bottles.
+*  Plastic Bags: An average of `r round(mean(mr_trash_wheel_df$plastic_bags, na.rm = TRUE), 0)`, bags per dumpster, amounting to approximately `r format(sum(mr_trash_wheel_df$plastic_bags, na.rm = TRUE), scientific = FALSE)` plastic bags.
+*  Wrappers: An average of `r round(mean(mr_trash_wheel_df$wrappers, na.rm = TRUE), 0)` wrappers per dumpster, with a cumulative total of approximately `r format(sum(mr_trash_wheel_df$wrappers, na.rm = TRUE), scientific = FALSE)` wrappers.
+*  Sports Balls: An average of `r round(mean(mr_trash_wheel_df$sports_balls, na.rm = TRUE), 0)` balls per dumpster, with a cumulative total of approximately `r format(sum(mr_trash_wheel_df$sports_balls, na.rm = TRUE), scientific = FALSE)` balls.
+*  Each dumpster powers an average of `r round(mean(mr_trash_wheel_df$homes_powered, na.rm = TRUE), 2)` homes, with a cumulative total of approximately `r round(sum(mr_trash_wheel_df$homes_powered, na.rm = TRUE, scientific = FALSE), 2)` homes powered by the collected trash.
 
 **Professor Trash Wheel**:
 
-* The dataset contains 106 observations and 14 categories for data. The data was collected from 2017 to 2023.
-* The weight of trash collected ranges from 0.61 tons to 3.72 tons, with an average of 2.04 tons per dumpster. Cumulatively, Professor Trash Wheel has collected approximately 216.26 tons of trash.
-* The volume ranges from 6 to 18 cubic yards, averaging 14.58 cubic yards per dumpster, totaling approximately 1546 cubic yards of trash.
+```{r}
+summary(professor_trash_wheel_df)
+```
 
-*  Plastic Bottles: An average of 5244 bottles per dumpster, with a cumulative total of 550646 plastic bottles.
-*  Polystyrene: An average of 4194 units per dumpster, totaling 440405 units collected.
-*  Cigarette Butts: Each dumpster collects an average of 11531 butts, summing up to 1210778 cigarette butts.
-*  Glass Bottles: An average of 16.81 bottles per dumpster, resulting in a total of 1765 glass bottles.
-*  Plastic Bags: An average of 2433 bags per dumpster, amounting to 255514 plastic bags.
-*  Wrappers: An average of 7695 wrappers per dumpster, with a cumulative total of 807982 wrappers.
-*  Each dumpster powers an average of 34 homes, with a cumulative total of 3604.33 homes powered by the collected trash.
+ 
+* This dataset contains `r ncol(professor_trash_wheel_df)` variables and `r nrow(professor_trash_wheel_df)` observations (dumpsters). The data was collected over the years `r paste(unique(professor_trash_wheel_df$year), collapse = ", ")`, with the number of observations in each year being: `r paste(table(professor_trash_wheel_df$year), collapse = ", ")`.
+
+* The weight of trash collected by Professor Trash Wheel dumpsters ranges from `r round(min(professor_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons to `r round(max(professor_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons, with an average of `r round(mean(professor_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons per dumpster. Cumulatively, Professor Trash Wheel has collected `r round(sum(professor_trash_wheel_df$weight_tons, na.rm = TRUE), 2)` tons of trash.
+
+* The volume of trash collected ranges from `r round(min(professor_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards to `r round(max(professor_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards, with an average of `r round(mean(professor_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards per dumpster. In total, the dumpsters have collected `r round(sum(professor_trash_wheel_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards of trash.
+
+* For specific types of trash, the average number of plastic bottles collected per dumpster is `r round(mean(professor_trash_wheel_df$plastic_bottles, na.rm = TRUE), 0)`, and cumulatively, Professor Trash Wheel has collected `r format(sum(professor_trash_wheel_df$plastic_bottles, na.rm = TRUE), scientific = FALSE)` plastic bottles.
+
+* The average number of polystyrene collected is `r round(mean(professor_trash_wheel_df$polystyrene, na.rm = TRUE), 0)`, with a total of `r format(sum(professor_trash_wheel_df$polystyrene, na.rm = TRUE), scientific = FALSE)` units collected so far.
+
+* For cigarette butts, each dumpster collects an average of `r round(mean(professor_trash_wheel_df$cigarette_butts, na.rm = TRUE), 0)`, with a cumulative total of `r format(sum(professor_trash_wheel_df$cigarette_butts, na.rm = TRUE), scientific = FALSE)` cigarette butts collected.
+
+* The average number of glass bottles per dumpster is `r round(mean(professor_trash_wheel_df$glass_bottles, na.rm = TRUE), 0)`, and cumulatively, Professor Trash Wheel has collected `r format(sum(professor_trash_wheel_df$glass_bottles, na.rm = TRUE), scientific = FALSE)` glass bottles.
+
+* The average number of plastic bags collected per dumpster is `r round(mean(professor_trash_wheel_df$plastic_bags, na.rm = TRUE), 0)`, and cumulatively, the trash wheel has collected `r format(sum(professor_trash_wheel_df$plastic_bags, na.rm = TRUE), scientific = FALSE)` plastic bags.
+
+* Each dumpster collects an average of `r round(mean(professor_trash_wheel_df$wrappers, na.rm = TRUE), 0)` wrappers, with a cumulative total of `r format(sum(professor_trash_wheel_df$wrappers, na.rm = TRUE), scientific = FALSE)` wrappers collected.
+
+* Regarding energy, on average, each dumpster powers the equivalent of `r round(mean(professor_trash_wheel_df$homes_powered, na.rm = TRUE), 2)` homes, with a cumulative total of `r round(sum(professor_trash_wheel_df$homes_powered, na.rm = TRUE), 2)` homes powered by the collected trash.
+
 
 **Gwynnda the Good Wheel of the West**:
 
-*  The dataset contains 155 observations and 11 categories for data. The data was collected from 2021 to 2023.
-*  The weight of trash collected ranges from 0.77 tons to 4.18 tons, with an average of 2.91 tons per dumpster. Cumulatively, Gwynnda has collected approximately 451.67 tons of trash.
-*  The volume ranges from 5 to 15 cubic yards, averaging 14.9 cubic yards per dumpster, totaling approximately 2309.5 cubic yards of trash.
+```{r}
+summary(gwynnda_df)
+```
 
-*  Plastic Bottles: An average of 1495 bottles per dumpster, with a cumulative total of 231725 plastic bottles.
-*  Polystyrene: An average of 170.7 units per dumpster, totaling 26458.5 units collected.
-*  Cigarette Butts: Each dumpster collects an average of 2368 butts, summing up to 367040 cigarette butts.
-*  Plastic Bags: An average of 788.8 bags per dumpster, amounting to 122264 plastic bags.
-*  Wrappers: An average of 1554 wrappers per dumpster, with a cumulative total of 214470 wrappers.
-*  Each dumpster powers an average of 48.52 homes, with a cumulative total of 7510.6 homes powered by the collected trash.
+* This dataset contains `r ncol(gwynnda_df)` variables and `r nrow(gwynnda_df)` observations (dumpsters). The data was collected over the years `r paste(unique(gwynnda_df$year), collapse = ", ")`, with the number of observations in each year being: `r paste(table(gwynnda_df$year), collapse = ", ")`.
+
+* The weight of trash collected by Gwynnda Trash Wheel dumpsters ranges from `r round(min(gwynnda_df$weight_tons, na.rm = TRUE), 2)` tons to `r round(max(gwynnda_df$weight_tons, na.rm = TRUE), 2)` tons, with an average of `r round(mean(gwynnda_df$weight_tons, na.rm = TRUE), 2)` tons per dumpster. Cumulatively, Gwynnda Trash Wheel has collected `r round(sum(gwynnda_df$weight_tons, na.rm = TRUE), 2)` tons of trash.
+
+* The volume of trash collected ranges from `r round(min(gwynnda_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards to `r round(max(gwynnda_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards, with an average of `r round(mean(gwynnda_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards per dumpster. In total, the dumpsters have collected `r round(sum(gwynnda_df$volume_cubic_yards, na.rm = TRUE), 2)` cubic yards of trash.
+
+* For specific types of trash, the average number of plastic bottles collected per dumpster is `r round(mean(gwynnda_df$plastic_bottles, na.rm = TRUE), 0)`, and cumulatively, Gwynnda Trash Wheel has collected `r format(sum(gwynnda_df$plastic_bottles, na.rm = TRUE), scientific = FALSE)` plastic bottles.
+
+* The average number of polystyrene collected is `r round(mean(gwynnda_df$polystyrene, na.rm = TRUE), 0)`, with a total of `r format(sum(gwynnda_df$polystyrene, na.rm = TRUE), scientific = FALSE)` units collected so far.
+
+* For cigarette butts, each dumpster collects an average of `r round(mean(gwynnda_df$cigarette_butts, na.rm = TRUE), 0)`, with a cumulative total of `r format(sum(gwynnda_df$cigarette_butts, na.rm = TRUE), scientific = FALSE)` cigarette butts collected.
+
+* The average number of plastic bags per dumpster is `r round(mean(gwynnda_df$plastic_bags, na.rm = TRUE), 0)`, and cumulatively, the trash wheel has collected `r format(sum(gwynnda_df$plastic_bags, na.rm = TRUE), scientific = FALSE)` plastic bags.
+
+* Each dumpster collects an average of `r round(mean(gwynnda_df$wrappers, na.rm = TRUE), 0)` wrappers, with a cumulative total of `r format(sum(gwynnda_df$wrappers, na.rm = TRUE), scientific = FALSE)` wrappers collected.
+
+* Regarding energy, on average, each dumpster powers the equivalent of `r round(mean(gwynnda_df$homes_powered, na.rm = TRUE), 2)` homes, with a cumulative total of `r round(sum(gwynnda_df$homes_powered, na.rm = TRUE), 2)` homes powered by the collected trash.
+
 
 **Calculate the total weight of trash collected by Professor Trash Wheel**
 ```{r}
@@ -201,7 +235,7 @@ total_weight_professor <- sum(
 # Display the result
 print(total_weight_professor)
 ```
-The total weight of trash collected by Professor Trash Wheel is 216.26 tons.
+The total weight of trash collected by Professor Trash Wheel is `r total_weight_professor` tons.
 
 **Calculate the total number of cigarette butts collected by Gwynnda in June of 2022**
 ```{r}
@@ -214,7 +248,7 @@ total_cigarette_butts_gwynnda <- combined_trash_wheel_df %>%
 # Display the result
 print(total_cigarette_butts_gwynnda)
 ```
-The total number of cigarette butts collected by Gwynnda in June of 2022 is 18120.
+The total number of cigarette butts collected by Gwynnda in June of 2022 is `r format(total_cigarette_butts_gwynnda, scientific = FALSE)`.
 
 
 ## Problem 3
@@ -403,4 +437,4 @@ avg_viewership_season_1
 avg_viewership_season_5
 ```
 
-For Season 1, the average viewership was 2.77; for Season 5, the average viewership was 10.0393.
+For Season 1, the average viewership was `r avg_viewership_season_1$average_viewers`; for Season 5, the average viewership was `r avg_viewership_season_5$average_viewers`.
