@@ -254,6 +254,9 @@ The total number of cigarette butts collected by Gwynnda in June of 2022 is `r f
 ## Problem 3
 
 **Import all datasets of the Great British Bake Off**
+
+The inconsistent naming conventions across the datasets is realized when checking the .csv files. Specifically, the person listed as "Joanne" in results was not matched with "Jo" & '"Jo"' in the other datasets, leading to many NA values for this person’s entries if using `merge`. Thus, those names were all converted to Jo with `mutate` during the `read_csv` phase.
+
 ```{r, message = FALSE}
 # Import data starting from the 4th row
 results <- read_csv("data/gbb_datasets/results.csv", 
@@ -289,7 +292,6 @@ viewers_long <- viewers %>%
 ```{r}
 # Merge the two dataframes `results` and `bakes based on the three columns
 merged_data <- merge(results, bakes, by = c("series", "episode", "baker"), all = TRUE) %>% # merge datasheets 'results' and 'bakes'
- 
   left_join(bakers, by = c("baker" = "first_name", "series" = "series")) %>% # Merge `merged_data` with `bakers` based on `baker` and `series`
   left_join(viewers_long, by = c("series", "episode")) # Merge the reshaped `viewers_long` with `final_data` based on `series` and `episode`
          
